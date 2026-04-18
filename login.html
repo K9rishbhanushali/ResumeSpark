@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Sign In | ResumeSpark{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-card">
+    <div>
+      <p class="eyebrow">Welcome Back</p>
+      <h1 class="auth-title">Sign in to ResumeSpark</h1>
+      <p class="hero-text">Use your email and password, or connect Google once credentials are configured.</p>
+    </div>
+
+    <form method="post" class="auth-form">
+      <label>
+        <span>Email</span>
+        <input type="email" name="email" placeholder="student@example.com" required>
+      </label>
+      <label>
+        <span>Password</span>
+        <input type="password" name="password" placeholder="Enter password" required>
+      </label>
+      <button class="primary-btn" type="submit">Sign In</button>
+    </form>
+
+    <a class="google-btn" href="{{ url_for('google_login') }}">Continue with Google{% if not google_ready %} (Setup Needed){% endif %}</a>
+
+    <div class="auth-links">
+      <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+      <a href="{{ url_for('signup') }}">Create account</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

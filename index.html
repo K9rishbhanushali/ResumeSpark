@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}ResumeSpark | Student Career Platform{% endblock %}
+{% block content %}
+<header class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Flask Career Platform</p>
+    <h1>Build resumes. Plan careers. Move toward better offers.</h1>
+    <p class="hero-text">
+      ResumeSpark helps students create a beginner resume and analyze their current resume against a dream company,
+      target package, and role. The app then gives a skill-gap report, roadmap, and learning resources.
+    </p>
+    <div class="hero-actions">
+      <a class="primary-btn" href="{{ url_for('signup') }}">Start With Email</a>
+      <a class="secondary-btn" href="{{ url_for('login') }}">Already Have An Account</a>
+    </div>
+  </div>
+  <div class="hero-card">
+    <h2>Inside your dashboard</h2>
+    <div class="feature-list">
+      <article>
+        <h3>Create New Resume</h3>
+        <p>Generate a clean beginner-ready resume draft from student details, skills, projects, and achievements.</p>
+      </article>
+      <article>
+        <h3>Career Lab</h3>
+        <p>Use the earlier ResumeSpark feature to compare your resume with a target company and package, then get a roadmap.</p>
+      </article>
+    </div>
+  </div>
+</header>
+{% endblock %}

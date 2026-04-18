@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Interview Prep | ResumeSpark{% endblock %}
+{% block content %}
+<section class="tool-header">
+  <div>
+    <p class="eyebrow">Feature 5</p>
+    <h1>Interview Prep</h1>
+    <p class="hero-text">Generate a realistic prep kit with role-specific rounds, technical and behavioral questions, and a mock interview flow.</p>
+  </div>
+  <a class="secondary-btn" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+</section>
+
+<section class="tool-layout">
+  <section class="panel">
+    <form method="post" class="tool-form">
+      <div class="grid two">
+        <label>
+          <span>Target Role</span>
+          <select name="targetRole">
+            {% for role in role_options %}
+              <option value="{{ role }}" {% if form_data.get('targetRole', 'Software Engineer') == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Target Company</span>
+          <input type="text" name="targetCompany" value="{{ form_data.get('targetCompany', '') }}" placeholder="Google, TCS, Amazon">
+        </label>
+      </div>
+
+      <label>
+        <span>Custom Role If You Choose Other</span>
+        <input type="text" name="targetRoleCustom" value="{{ form_data.get('targetRoleCustom', '') }}" placeholder="AI Engineer, DevRel, Quant Analyst">
+      </label>
+
+      <label>
+        <span>Current Skills</span>
+        <input type="text" name="skills" value="{{ form_data.get('skills', '') }}" placeholder="Python, SQL, React, Problem Solving">
+      </label>
+
+      <label>
+        <span>Interview Difficulty</span>
+        <select name="difficulty">
+          {% for level in ["Beginner", "Intermediate", "Advanced"] %}
+            <option value="{{ level }}" {% if form_data.get('difficulty', 'Intermediate') == level %}selected{% endif %}>{{ level }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Resume Text</span>
+        <textarea name="resumeText" rows="10" placeholder="Paste resume text here">{{ form_data.get('resumeText', '') }}</textarea>
+      </label>
+
+      <button class="primary-btn" type="submit" data-loading-text="Generating Questions...">Generate Interview Prep</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    {% if result %}
+      <div class="result-card no-shadow">
+        <h3>Company Focus</h3>
+        <article class="timeline-step">
+          <p>{{ result.company_focus }}</p>
+        </article>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Technical Questions</h3>
+        <div class="timeline">
+          {% for question in result.technical_questions %}
+            <article class="timeline-step">
+              <p>{{ question }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Behavioral Questions</h3>
+        <div class="timeline">
+          {% for question in result.behavioral_questions %}
+            <article class="timeline-step">
+              <p>{{ question }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Scenario Questions</h3>
+        <div class="timeline">
+          {% for question in result.scenario_questions %}
+            <article class="timeline-step">
+              <p>{{ question }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Mock Interview Plan</h3>
+        <div class="timeline">
+          {% for step in result.mock_plan %}
+            <article class="timeline-step">
+              <p>{{ step }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Preparation Checklist</h3>
+        <div class="timeline">
+          {% for tip in result.preparation_tips %}
+            <article class="timeline-step">
+              <p>{{ tip }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h3>Ready to practice</h3>
+        <p>Generate questions based on your role, company, and resume before interview day.</p>
+      </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

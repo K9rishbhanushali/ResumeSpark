@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | ResumeSpark{% endblock %}
+{% block content %}
+<section class="dashboard-hero">
+  <div>
+    <p class="eyebrow">Career Dashboard</p>
+    <h1>Build your resume. Plan your next role.</h1>
+    <p class="hero-text">Use ResumeSpark to create a polished resume, discover missing skills, and follow a roadmap toward your dream company.</p>
+  </div>
+  <div class="dashboard-stats">
+    <div class="stat-card">
+      <strong>Auto Resume</strong>
+      <span>Guided resume creation with themes and PDF export</span>
+    </div>
+    <div class="stat-card">
+      <strong>Career Roadmap</strong>
+      <span>Skill-gap analysis, learning links, and timeline planning</span>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-grid">
+  <article class="dashboard-card">
+    <p class="card-tag">Feature 1</p>
+    <h2>Create New Resume</h2>
+    <p>Create a professional student resume with guided questions, theme selection, cleaner wording, and one-click PDF download.</p>
+    <a class="primary-btn" href="{{ url_for('resume_builder') }}">Open Resume Builder</a>
+  </article>
+
+  <article class="dashboard-card">
+    <p class="card-tag">Feature 2</p>
+    <h2>Career Lab</h2>
+    <p>Choose your target company, salary package, role, and roadmap time to get required skills, source links, and a practical step-by-step plan.</p>
+    <a class="primary-btn" href="{{ url_for('career_lab') }}">Open Career Lab</a>
+  </article>
+
+  <article class="dashboard-card">
+    <p class="card-tag">Feature 3</p>
+    <h2>Cover Letter</h2>
+    <p>Generate a tailored cover letter for your target company and download it as a clean PDF.</p>
+    <a class="primary-btn" href="{{ url_for('cover_letter') }}">Open Cover Letter Tool</a>
+  </article>
+
+  <article class="dashboard-card">
+    <p class="card-tag">Feature 4</p>
+    <h2>Resume Score</h2>
+    <p>Upload your resume or paste text to get ATS keyword match, readability score, and clear improvement tips.</p>
+    <a class="primary-btn" href="{{ url_for('resume_score') }}">Check Resume Score</a>
+  </article>
+
+  <article class="dashboard-card">
+    <p class="card-tag">Feature 5</p>
+    <h2>Interview Prep</h2>
+    <p>Generate realistic interview rounds with technical, behavioral, and scenario questions tailored to your role and company.</p>
+    <a class="primary-btn" href="{{ url_for('interview_prep') }}">Open Interview Prep</a>
+  </article>
+</section>
+
+<section class="panel saved-panel">
+  <div class="result-head">
+    <h2>My Resumes</h2>
+    <span class="pill">{{ recent_resumes|length }} saved</span>
+  </div>
+  {% if recent_resumes %}
+    <div class="saved-grid">
+      {% for resume in recent_resumes %}
+        <article class="saved-card">
+          <strong>{{ resume.title }}</strong>
+          <p>{{ resume.theme|title }} theme</p>
+          <p>{{ resume.created_at.strftime('%d %b %Y %I:%M %p') }}</p>
+          <a class="secondary-btn" href="{{ url_for('resume_builder', resume_id=resume.id) }}">Open Resume</a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>No saved resumes yet</h3>
+      <p>Your generated resumes will appear here so you can reopen and refine them later.</p>
+    </div>
+  {% endif %}
+</section>
+
+{% if db_init_error %}
+  <section class="flash-stack">
+    <div class="flash error">Database initialization warning: {{ db_init_error }}</div>
+  </section>
+{% endif %}
+{% endblock %}

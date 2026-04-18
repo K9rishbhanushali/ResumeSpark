@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Cover Letter | ResumeSpark{% endblock %}
+{% block content %}
+<section class="tool-header">
+  <div>
+    <p class="eyebrow">Feature 3</p>
+    <h1>Cover Letter Generator</h1>
+    <p class="hero-text">Create a tailored cover letter using your role, company, skills, and project background.</p>
+  </div>
+  <a class="secondary-btn" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+</section>
+
+<section class="tool-layout">
+  <section class="panel">
+    <form method="post" class="tool-form">
+      <div class="grid two">
+        <label>
+          <span>Student Name</span>
+          <input type="text" name="studentName" value="{{ form_data.get('studentName', '') }}" placeholder="Krish">
+        </label>
+        <label>
+          <span>Target Company</span>
+          <input type="text" name="targetCompany" value="{{ form_data.get('targetCompany', '') }}" placeholder="Google, Infosys, Zerodha">
+        </label>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Target Role</span>
+          <select name="targetRole">
+            {% for role in role_options %}
+              <option value="{{ role }}" {% if form_data.get('targetRole', 'Software Engineer') == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Custom Role If You Choose Other</span>
+          <input type="text" name="targetRoleCustom" value="{{ form_data.get('targetRoleCustom', '') }}" placeholder="AI Engineer, DevRel">
+        </label>
+      </div>
+
+      <label>
+        <span>Skills</span>
+        <input type="text" name="skills" value="{{ form_data.get('skills', '') }}" placeholder="Python, SQL, React, Communication">
+      </label>
+
+      <label>
+        <span>Projects (Add One Per Line)</span>
+        <textarea name="projectsText" rows="5" placeholder="Placement Tracker&#10;Portfolio Website&#10;Any other project">{{ form_data.get('projectsText', '') }}</textarea>
+      </label>
+
+      <label>
+        <span>Internship / Experience</span>
+        <textarea name="internship" rows="5" placeholder="Describe any internship, team work, or relevant experience">{{ form_data.get('internship', '') }}</textarea>
+      </label>
+
+      <button class="primary-btn" type="submit" data-loading-text="Writing Cover Letter...">Generate Cover Letter</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    {% if draft %}
+      <pre class="resume-draft">{{ draft }}</pre>
+      <form method="post" action="{{ url_for('cover_letter_pdf') }}" class="pdf-form">
+        {% for field in ['studentName', 'targetCompany', 'targetRole', 'targetRoleCustom', 'skills', 'projectsText'] %}
+          <input type="hidden" name="{{ field }}" value="{{ form_data.get(field, '') }}">
+        {% endfor %}
+        <textarea class="hidden-input" name="internship">{{ form_data.get('internship', '') }}</textarea>
+        <input type="hidden" name="resumeTheme" value="classic">
+        <button class="primary-btn" type="submit" data-loading-text="Preparing PDF...">Download Cover Letter PDF</button>
+      </form>
+    {% else %}
+      <div class="empty-state">
+        <h3>No cover letter yet</h3>
+        <p>Answer the inputs and ResumeSpark will draft a fresher-friendly cover letter for you.</p>
+      </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

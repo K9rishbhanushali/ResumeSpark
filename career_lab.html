@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Career Lab | ResumeSpark{% endblock %}
+{% block content %}
+<section class="tool-header">
+  <div>
+    <p class="eyebrow">Feature 2</p>
+    <h1>Career Lab</h1>
+    <p class="hero-text">Paste your resume, choose a target company and salary package, then get a skill-gap analysis and roadmap.</p>
+  </div>
+  <a class="secondary-btn" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+</section>
+
+<section class="tool-layout">
+  <section class="panel">
+    <form method="post" class="tool-form">
+      <div class="grid two">
+        <label>
+          <span>Student Name</span>
+          <input type="text" name="studentName" value="{{ form_data.get('studentName', '') }}" placeholder="Aarav Sharma">
+        </label>
+        <label>
+          <span>Degree / Branch</span>
+          <input type="text" name="degree" value="{{ form_data.get('degree', '') }}" placeholder="B.Tech CSE">
+        </label>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Target Company</span>
+          <input type="text" name="targetCompany" value="{{ form_data.get('targetCompany', '') }}" placeholder="Google, TCS, Infosys, Amazon">
+        </label>
+        <label>
+          <span>Target Package</span>
+          <select name="targetPackage">
+            {% for package in ["4-8 LPA", "8-12 LPA", "12-20 LPA", "20+ LPA"] %}
+              <option value="{{ package }}" {% if form_data.get('targetPackage', '4-8 LPA') == package %}selected{% endif %}>{{ package }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Preferred Role</span>
+          <select name="targetRole">
+            {% for role in role_options %}
+              <option value="{{ role }}" {% if form_data.get('targetRole', 'Software Engineer') == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Experience Level</span>
+          <select name="experienceLevel">
+            {% for level in ["Beginner", "Intermediate", "Final Year"] %}
+              <option value="{{ level }}" {% if form_data.get('experienceLevel', 'Beginner') == level %}selected{% endif %}>{{ level }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <label>
+        <span>Custom Role If You Choose Other</span>
+        <input type="text" name="targetRoleCustom" value="{{ form_data.get('targetRoleCustom', '') }}" placeholder="AI Engineer, DevOps Engineer, Security Analyst">
+      </label>
+
+      <label>
+        <span>Roadmap Time</span>
+        <select name="roadmapDuration">
+          {% for duration in roadmap_durations %}
+            <option value="{{ duration }}" {% if form_data.get('roadmapDuration', '6 months') == duration %}selected{% endif %}>{{ duration }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Current Skills</span>
+        <input type="text" name="skills" value="{{ form_data.get('skills', '') }}" placeholder="Java, Python, HTML, CSS, SQL">
+      </label>
+
+      <label>
+        <span>Resume Text</span>
+        <textarea name="resumeText" rows="10" placeholder="Paste resume text here.">{{ form_data.get('resumeText', '') }}</textarea>
+      </label>
+
+      <button class="primary-btn" type="submit" data-loading-text="Generating Roadmap...">Generate Career Plan</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    {% if analysis %}
+      <div class="result-card no-shadow">
+        <div class="result-head">
+          <h2>Target Snapshot</h2>
+          <span class="pill">Fit Score {{ analysis.fit_score }}%</span>
+        </div>
+        <div class="metric-grid">
+          <article class="metric">
+            <strong>Target Company</strong>
+            <span class="metric-note">{{ form_data.get('targetCompany', 'Not specified') }}</span>
+          </article>
+          <article class="metric">
+            <strong>Target Package</strong>
+            <span class="metric-note">{{ form_data.get('targetPackage', 'Not specified') }}</span>
+          </article>
+          <article class="metric">
+            <strong>Expected Standard</strong>
+            <span class="metric-note">{{ analysis.package_expectation }}</span>
+          </article>
+          <article class="metric">
+            <strong>Hiring Note</strong>
+            <span class="metric-note">{{ analysis.company_note }}</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Required Skills</h3>
+        <div class="source-grid">
+          {% for source in analysis.skill_sources %}
+            <article class="source-card">
+              <span class="chip">{{ source.skill }}</span>
+              <a href="{{ source.url }}" target="_blank" rel="noreferrer">{{ source.label }}</a>
+              {% if source.homepage %}
+                <a href="{{ source.homepage }}" target="_blank" rel="noreferrer">Official site</a>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Missing Skills To Focus</h3>
+        <div class="chip-grid">
+          {% if analysis.missing_skills %}
+            {% for skill in analysis.missing_skills %}
+              <span class="chip missing">{{ skill }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="chip">You already cover many core keywords. Strengthen projects and interview prep next.</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Action Roadmap</h3>
+        <div class="timeline">
+          {% for step in analysis.roadmap %}
+            <article class="timeline-step">
+              <h4>{{ step.title }}</h4>
+              <p>{{ step.text }}</p>
+            </article>
+          {% endfor %}
+        </div>
+        <form method="get" action="{{ url_for('interview_prep') }}" class="inline-action-form">
+          {% for field in ['studentName', 'degree', 'targetCompany', 'targetPackage', 'targetRole', 'targetRoleCustom', 'skills', 'resumeText'] %}
+            <input type="hidden" name="{{ field }}" value="{{ form_data.get(field, '') }}">
+          {% endfor %}
+          <button class="secondary-btn" type="submit">Prep for Interview</button>
+        </form>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Suggested Learning Tracks</h3>
+        <div class="video-list">
+          {% for video in analysis.video_tracks %}
+            <article class="video-item">
+              <strong>{{ video.skill }}</strong>
+              <p>{{ video.title }}</p>
+              <a href="{{ video.url }}" target="_blank" rel="noreferrer">{{ video.channel }}</a>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Beginner Resume Draft</h3>
+        <pre class="resume-draft">{{ analysis.resume_draft }}</pre>
+        <form method="post" action="{{ url_for('resume_builder_pdf') }}" class="pdf-form">
+          {% for field in ['studentName', 'degree', 'targetRole', 'targetRoleCustom', 'targetCompany', 'skills'] %}
+            <input type="hidden" name="{{ field }}" value="{{ form_data.get(field, '') }}">
+          {% endfor %}
+          <input type="hidden" name="contactEmail" value="{{ current_user.email }}">
+          <button class="primary-btn" type="submit" data-loading-text="Preparing PDF...">Download PDF Resume</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h3>Ready to analyze your target</h3>
+        <p>Submit the form to see required skills, missing skills, roadmap, and recommended learning links.</p>
+      </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

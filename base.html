@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}ResumeSpark{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="page-shell">
+    <nav class="topbar">
+      <a class="brand" href="{{ url_for('index') }}">ResumeSpark</a>
+      <div class="topbar-links">
+        {% if current_user.is_authenticated %}
+          <span class="welcome">Hi, {{ current_user.name.title() }}</span>
+          <a href="{{ url_for('dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Sign In</a>
+          <a class="topbar-btn" href="{{ url_for('signup') }}">Create Account</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <section class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </section>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <script>
+    (function () {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+      document.querySelectorAll('form[method="post"]').forEach((form) => {
+        if (!form.querySelector('input[name="csrf_token"]')) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'csrf_token';
+          input.value = csrfToken;
+          form.prepend(input);
+        }
+
+        form.addEventListener('submit', () => {
+          const submitButton = form.querySelector('button[type="submit"]');
+          if (!submitButton) return;
+          submitButton.dataset.originalText = submitButton.textContent;
+          submitButton.textContent = submitButton.dataset.loadingText || 'Working...';
+          submitButton.disabled = true;
+          form.classList.add('is-submitting');
+        });
+      });
+
+      window.setTimeout(() => {
+        document.querySelectorAll('.flash').forEach((flash) => {
+          flash.classList.add('flash-hide');
+        });
+      }, 4000);
+    }());
+  </script>
+</body>
+</html>

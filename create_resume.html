@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}Create Resume | ResumeSpark{% endblock %}
+{% block content %}
+<section class="tool-header">
+  <div>
+    <p class="eyebrow">Feature 1</p>
+    <h1>Create a new resume</h1>
+    <p class="hero-text">Fill in your basic profile and ResumeSpark will prepare a full automated resume with theme styling, structured sections, and PDF download.</p>
+  </div>
+  <a class="secondary-btn" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+</section>
+
+<section class="tool-layout">
+  <section class="panel">
+    {% if loaded_resume %}
+      <div class="saved-banner">
+        <strong>Editing saved resume:</strong> {{ loaded_resume.title }}
+      </div>
+    {% endif %}
+    <div class="automation-note">
+      <strong>Full automated resume builder</strong>
+      <p>Choose a theme, answer the guided questions, and ResumeSpark will create the structure, wording, and downloadable PDF for you.</p>
+    </div>
+
+    <form method="post" class="tool-form">
+      <div class="grid two">
+        <label>
+          <span>Resume Title</span>
+          <input type="text" name="resumeTitle" value="{{ form_data.get('resumeTitle', '') }}" placeholder="Krish SWE Resume">
+        </label>
+        <label class="toggle-row">
+          <span>AI Enhancement</span>
+          <input type="checkbox" name="aiEnhance" {% if form_data.get('aiEnhance', 'on') == 'on' %}checked{% endif %}>
+        </label>
+      </div>
+
+      <div class="theme-picker">
+        {% for key, theme in resume_themes.items() %}
+          <label class="theme-card">
+            <input type="radio" name="resumeTheme" value="{{ key }}" {% if form_data.get('resumeTheme', 'classic') == key %}checked{% endif %}>
+            <span class="theme-card-title">{{ theme.name }}</span>
+            <span class="theme-card-copy">{{ theme.tagline }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Student Name</span>
+          <input type="text" name="studentName" value="{{ form_data.get('studentName', '') }}" placeholder="Aarav Sharma" required>
+        </label>
+        <label>
+          <span>Degree / Branch</span>
+          <input type="text" name="degree" value="{{ form_data.get('degree', '') }}" placeholder="B.Tech CSE" required>
+        </label>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>College</span>
+          <input type="text" name="college" value="{{ form_data.get('college', '') }}" placeholder="Your college name">
+        </label>
+        <label>
+          <span>Graduation Year</span>
+          <input type="text" name="graduationYear" value="{{ form_data.get('graduationYear', '') }}" placeholder="2027">
+        </label>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Target Role</span>
+          <select name="targetRole">
+            {% for role in role_options %}
+              <option value="{{ role }}" {% if form_data.get('targetRole', 'Software Engineer') == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Target Company</span>
+          <input type="text" name="targetCompany" value="{{ form_data.get('targetCompany', '') }}" placeholder="Google, TCS, Amazon">
+        </label>
+      </div>
+
+      <label>
+        <span>Custom Role If You Choose Other</span>
+        <input type="text" name="targetRoleCustom" value="{{ form_data.get('targetRoleCustom', '') }}" placeholder="AI Engineer, Cloud Engineer, Cybersecurity Analyst">
+      </label>
+
+      <div class="grid two">
+        <label>
+          <span>Phone</span>
+          <input type="text" name="phone" value="{{ form_data.get('phone', '') }}" placeholder="+91 9876543210">
+        </label>
+        <label>
+          <span>Contact Email</span>
+          <input type="email" name="contactEmail" value="{{ form_data.get('contactEmail', '') }}" placeholder="student@example.com">
+        </label>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>City</span>
+          <input type="text" name="city" value="{{ form_data.get('city', '') }}" placeholder="Delhi, India">
+        </label>
+        <label>
+          <span>LinkedIn</span>
+          <input type="text" name="linkedin" value="{{ form_data.get('linkedin', '') }}" placeholder="linkedin.com/in/yourname">
+        </label>
+      </div>
+
+      <label>
+        <span>GitHub / Portfolio</span>
+        <input type="text" name="github" value="{{ form_data.get('github', '') }}" placeholder="github.com/yourname or your portfolio URL">
+      </label>
+
+      <label>
+        <span>Professional Summary</span>
+        <textarea name="summary" rows="4" placeholder="Write 2-3 lines about yourself, your strengths, and your target role.">{{ form_data.get('summary', '') }}</textarea>
+      </label>
+
+      <label>
+        <span>Skills</span>
+        <input type="text" name="skills" value="{{ form_data.get('skills', '') }}" placeholder="Python, SQL, HTML, CSS, JavaScript">
+      </label>
+
+      <label>
+        <span>Projects (Add One Per Line)</span>
+        <textarea name="projectsText" rows="6" placeholder="Student Management System&#10;Portfolio Website&#10;AI Chatbot">{{ form_data.get('projectsText', '') }}</textarea>
+      </label>
+
+      <label>
+        <span>Internship / Experience</span>
+        <textarea name="internship" rows="4" placeholder="Add internships, freelance work, training, campus roles, or team contributions.">{{ form_data.get('internship', '') }}</textarea>
+      </label>
+
+      <label>
+        <span>Certifications / Courses</span>
+        <textarea name="certifications" rows="4" placeholder="Add certifications, workshops, or courses you completed.">{{ form_data.get('certifications', '') }}</textarea>
+      </label>
+
+      <label>
+        <span>Achievements</span>
+        <textarea name="achievements" rows="6" placeholder="Add coding profiles, hackathons, workshops, awards, or strong coursework.">{{ form_data.get('achievements', '') }}</textarea>
+      </label>
+
+      <button class="primary-btn" type="submit" data-loading-text="Generating Resume...">Generate Resume Draft</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Generated Resume Draft</h2>
+    {% if generated_resume %}
+      <div class="resume-preview resume-theme-{{ generated_resume_html.theme_key }}">
+        <div class="resume-preview-header">
+          <div>
+            <h3>{{ generated_resume_html.name }}</h3>
+            <p>{{ generated_resume_html.role }} | {{ generated_resume_html.degree }}</p>
+            <small>{{ generated_resume_html.tagline }}</small>
+          </div>
+          <div class="resume-preview-meta">
+            {% for item in generated_resume_html.contact_items %}
+              <span>{{ item }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="resume-preview-section">
+          <h4>Professional Summary</h4>
+          <p>{{ generated_resume_html.summary }}</p>
+        </div>
+
+        <div class="resume-preview-section">
+          <h4>Skills</h4>
+          <div class="resume-skill-grid">
+            {% for skill in generated_resume_html.skills %}
+              <span class="resume-skill">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="resume-preview-section">
+          <h4>Projects</h4>
+          {% for project in generated_resume_html.projects %}
+            <p>{{ loop.index }}. {{ project }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="resume-preview-section">
+          <h4>Internship / Experience</h4>
+          <p>{{ generated_resume_html.internship }}</p>
+        </div>
+
+        <div class="resume-preview-section">
+          <h4>Education</h4>
+          <p>{{ generated_resume_html.education }}</p>
+        </div>
+
+        <div class="resume-preview-section">
+          <h4>Certifications</h4>
+          <p>{{ generated_resume_html.certifications }}</p>
+        </div>
+
+        <div class="resume-preview-section">
+          <h4>Achievements</h4>
+          <p>{{ generated_resume_html.achievements }}</p>
+        </div>
+      </div>
+
+      <pre class="resume-draft">{{ generated_resume }}</pre>
+      <form method="post" action="{{ url_for('resume_builder_pdf') }}" class="pdf-form">
+        {% for field in ['resumeTitle', 'studentName', 'degree', 'college', 'graduationYear', 'targetRole', 'targetRoleCustom', 'targetCompany', 'phone', 'contactEmail', 'city', 'linkedin', 'github', 'skills', 'projectsText', 'resumeTheme'] %}
+          <input type="hidden" name="{{ field }}" value="{{ form_data.get(field, '') }}">
+        {% endfor %}
+        <input type="hidden" name="aiEnhance" value="{{ form_data.get('aiEnhance', 'on') }}">
+        <textarea name="summary" class="hidden-input">{{ form_data.get('summary', '') }}</textarea>
+        <textarea name="internship" class="hidden-input">{{ form_data.get('internship', '') }}</textarea>
+        <textarea name="certifications" class="hidden-input">{{ form_data.get('certifications', '') }}</textarea>
+        <textarea name="achievements" class="hidden-input">{{ form_data.get('achievements', '') }}</textarea>
+        <button class="primary-btn" type="submit" data-loading-text="Preparing PDF...">Download PDF Resume</button>
+      </form>
+    {% else %}
+      <div class="empty-state">
+        <h3>No resume generated yet</h3>
+        <p>Complete the form to create your first beginner resume draft.</p>
+      </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

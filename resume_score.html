@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Resume Score | ResumeSpark{% endblock %}
+{% block content %}
+<section class="tool-header">
+  <div>
+    <p class="eyebrow">Feature 4</p>
+    <h1>Resume Score</h1>
+    <p class="hero-text">Paste your resume, choose a target role, and see how well it matches ATS-style expectations.</p>
+  </div>
+  <a class="secondary-btn" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+</section>
+
+<section class="tool-layout">
+  <section class="panel">
+    <form method="post" enctype="multipart/form-data" class="tool-form">
+      <div class="grid two">
+        <label>
+          <span>Target Role</span>
+          <select name="targetRole">
+            {% for role in role_options %}
+              <option value="{{ role }}" {% if form_data.get('targetRole', 'Software Engineer') == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Target Company</span>
+          <input type="text" name="targetCompany" value="{{ form_data.get('targetCompany', '') }}" placeholder="Google, TCS, Amazon">
+        </label>
+      </div>
+
+      <label>
+        <span>Custom Role If You Choose Other</span>
+        <input type="text" name="targetRoleCustom" value="{{ form_data.get('targetRoleCustom', '') }}" placeholder="AI Engineer, Product Designer">
+      </label>
+
+      <label>
+        <span>Upload Resume File</span>
+        <input type="file" name="resumeFile" accept=".txt,.md,.json,.csv,.pdf">
+      </label>
+
+      <label>
+        <span>Or Paste Resume Text</span>
+        <textarea name="resumeText" rows="14" placeholder="Paste your resume here">{{ form_data.get('resumeText', '') }}</textarea>
+      </label>
+
+      <button class="primary-btn" type="submit" data-loading-text="Scoring Resume...">Check Resume Score</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    {% if score %}
+      <div class="metric-grid">
+        <article class="metric">
+          <strong>Overall Score</strong>
+          <span class="metric-note">{{ score.overall }} / 100</span>
+        </article>
+        <article class="metric">
+          <strong>Keyword Match</strong>
+          <span class="metric-note">{{ score.keyword_score }} / 100</span>
+        </article>
+        <article class="metric">
+          <strong>Readability</strong>
+          <span class="metric-note">{{ score.readability }} / 100</span>
+        </article>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Matched Skills</h3>
+        <div class="chip-grid">
+          {% for skill in score.matched_skills %}
+            <span class="chip">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Missing Skills</h3>
+        <div class="chip-grid">
+          {% for skill in score.missing_skills %}
+            <span class="chip missing">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="result-card no-shadow">
+        <h3>Improvement Tips</h3>
+        <div class="timeline">
+          {% for tip in score.tips %}
+            <article class="timeline-step">
+              <p>{{ tip }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h3>Ready to score your resume</h3>
+        <p>Submit your resume text to see ATS-style feedback and keyword coverage.</p>
+      </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
